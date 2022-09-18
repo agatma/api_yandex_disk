@@ -1,10 +1,7 @@
 from datetime import datetime, timedelta
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
-from rest_framework import mixins, status, viewsets, generics
+from rest_framework import status, generics
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-
 from rest_framework.exceptions import ValidationError
 
 from api.models import Item, FILE
@@ -17,8 +14,7 @@ from api.serializers import (
 from api.validation import items_validation
 from api.utils import update_parent_date
 
-query_datetime_pattern = "%Y-%m-%dT%H:%M:%S.%fZ"
-import_datetime_pattern = "%Y-%m-%dT%H:%M:%S%fZ"
+OpenAPI_datetime_pattern = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
 class ItemImportView(generics.CreateAPIView):
@@ -32,7 +28,7 @@ class ItemImportView(generics.CreateAPIView):
         except KeyError as e:
             raise ValidationError() from e
         try:
-            update_date = datetime.strptime(update_date, import_datetime_pattern)
+            update_date = datetime.strptime(update_date, OpenAPI_datetime_pattern)
         except ValueError as e:
             raise ValidationError() from e
         if not items_validation(items):
@@ -61,8 +57,9 @@ class ItemHistoryExportView(generics.RetrieveAPIView):
             return get_object_or_404(Item, pk=self.kwargs["item_uuid"])
         if start_dt and not end_dt:
             try:
-                start_dt = datetime.strptime(start_dt, import_datetime_pattern)
+                start_dt = datetime.strptime(start_dt, OpenAPI_datetime_pattern)
             except (ValueError, TypeError) as e:
+                print("Произошла ошибка")
                 raise ValidationError() from e
             try:
                 return Item.objects.get(pk=self.kwargs["item_uuid"], date__gte=start_dt)
@@ -70,11 +67,13 @@ class ItemHistoryExportView(generics.RetrieveAPIView):
                 raise ValidationError() from e
         if end_dt:
             try:
-                end_dt = datetime.strptime(end_dt, import_datetime_pattern)
+                end_dt = datetime.strptime(end_dt, OpenAPI_datetime_pattern)
             except (ValueError, TypeError) as e:
                 raise ValidationError() from e
             try:
-                return Item.objects.get(pk=self.kwargs["item_uuid"], date__gte=start_dt, date__lte=end_dt)
+                return Item.objects.get(
+                    pk=self.kwargs["item_uuid"], date__gte=start_dt, date__lte=end_dt
+                )
             except Item.DoesNotExist as e:
                 raise ValidationError() from e
 
@@ -92,7 +91,7 @@ class ItemDeleteView(generics.DestroyAPIView):
         instance = self.get_object()
         dt = self.request.query_params.get("date")
         try:
-            dt = datetime.strptime(dt, import_datetime_pattern)
+            dt = datetime.strptime(dt, OpenAPI_datetime_pattern)
         except (ValueError, TypeError) as e:
             raise ValidationError() from e
         update_parent_date(instance, dt)
@@ -106,7 +105,7 @@ class Item24HourUpdateView(generics.ListAPIView):
     def get_queryset(self):
         end_dt = self.request.query_params.get("date")
         try:
-            start_dt = datetime.strptime(end_dt, import_datetime_pattern) - timedelta(
+            start_dt = datetime.strptime(end_dt, OpenAPI_datetime_pattern) - timedelta(
                 days=1
             )
         except (ValueError, TypeError) as e:

@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Optional, List
+from typing import Optional
 from rest_framework.generics import get_object_or_404
 
 from rest_framework import serializers

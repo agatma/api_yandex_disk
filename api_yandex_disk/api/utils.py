@@ -5,7 +5,7 @@ from api.models import Item, FOLDER
 
 
 def cut_date_to_format(date: str) -> str:
-    return f"{date[:19]}Z"
+    return f"{date[:19]}.{date[19:22]}Z"
 
 
 def update_parent_date(instance: Optional[Item], dt: datetime) -> None:
