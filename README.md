@@ -1,6 +1,6 @@
-[![yamdb-final-app workflow](https://github.com/agatma/yamdb_final/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/agatma/yamdb_final/actions/workflows/main.yml)
-
 # Тестовое задание в ШБР Яндекса
+
+Проект доступен по адресу https://github.com/agatma/api_yandex_disk
 
 REST API сервис, который позволяет пользователям загружать и обновляет информацию о файлах и папках
 1. Пользователь загружает и структурирует файлы в предложенном ему облачном пространстве.
@@ -38,33 +38,6 @@ DB_PORT=5432 # порт для подключения к БД
 - Соберите статику командой `sudo docker-compose exec web python manage.py collectstatic --no-input`
 - Создайте суперпользователя Django `sudo docker-compose exec web python manage.py createsuperuser --username admin --email 'admin@yamdb.com'`
 - Загрузите данные в базу данных при необходимости `sudo docker-compose exec web python manage.py loaddata data/fixtures.json`
-## Запуск на удаленном сервере
-Для запуска проекта на удаленном сервере необходимо:
-- Откройте папку infra/
-- скопировать на сервер файлы `docker-compose.yaml`, `.env` и папку `nginx` командами:
-```
-scp docker-compose.yaml  <user>@<server-ip>:
-scp .env <user>@<server-ip>:
-scp -r nginx/ <user>@<server-ip>:
-```
-
-- создать переменные окружения в разделе `secrets` настроек текущего репозитория:
-```
-DOCKER_PASSWORD # Пароль от Docker Hub
-DOCKER_USERNAME # Логин от Docker Hub
-HOST # Публичный ip адрес сервера
-USER # Пользователь зарегистрированный на сервере
-PASSPHRASE # Если ssh-ключ защищен фразой-паролем
-SSH_KEY # Приватный ssh-ключ
-TELEGRAM_TO # ID телеграм-аккаунта
-TELEGRAM_TOKEN # Токен бота
-```
-
-### После каждого обновления репозитория (`git push`) будет происходить:
-1. Проверка кода на соответствие стандарту PEP8 (с помощью пакета flake8) и запуск pytest из репозитория api_yandex_disk
-2. Сборка и доставка докер-образов на Docker Hub.
-3. Автоматический деплой.
-4. Отправка уведомления в Telegram.
 
 ## Запуск на локальном компьютере без Docker
 
